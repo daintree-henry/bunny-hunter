@@ -1,3 +1,5 @@
+"""중고거래 매물 탐색과 문의 작성을 자동화하는 메인 에이전트."""
+
 from typing import List, Dict, TypedDict, Optional, Union, Any
 from langgraph.graph import StateGraph, START, END
 from langgraph.prebuilt import ToolNode, tools_condition
@@ -142,9 +144,7 @@ def search_target_region_listings(item_name: str) -> List[Dict]:
 
 @tool
 def estimate_price(item_name: str, all_item_list: List[Dict]) -> float:
-    """
-    ...
-    """
+    """과거 거래 목록을 기반으로 합리적인 적정가를 계산한다."""
     print("💰 [가격 분석] 적정가를 계산합니다.")
     
     if not all_item_list:
@@ -185,9 +185,7 @@ def estimate_price(item_name: str, all_item_list: List[Dict]) -> float:
 
 @tool
 def find_deal(item_name: str, sailing_item_list: List[Dict], reasonable_price: float) -> Dict:
-    """
-    ...
-    """
+    """현재 매물 목록에서 기준가 이하의 최적 매물을 선택한다."""
     print(f"🎯 [딜 탐색] 기준가 {reasonable_price:,.0f}원에 부합하는 매물을 찾습니다.")
 
     if not sailing_item_list:
@@ -305,6 +303,8 @@ model = ChatOpenAI(
 
 # --------- 정책 노드(모델 호출) ---------
 def policy(state: AgentState) -> AgentState:
+    """현재 상태를 요약하고 다음에 실행할 툴을 결정하는 정책 노드."""
+
     print("🤖 [정책 노드] 현재 상태를 바탕으로 다음 행동을 계획합니다.")
     print("    =========== 현재 상태 ===========")
     print(f"   • 타겟 상품명: {state.get('item_name')}")
@@ -398,6 +398,8 @@ def _parse_tool_content(content: Any):
     return content
 
 def reduce_observation(state: AgentState) -> AgentState:
+    """툴 실행 결과를 해석해 AgentState에 반영하는 리듀서."""
+
     msgs = state.get("messages", [])
     last_idx = int(state.get("_last_msg_idx", 0))
     new_msgs = msgs[last_idx:]
@@ -467,6 +469,8 @@ def reduce_observation(state: AgentState) -> AgentState:
 
 # --------- 대기 노드(폴링 템포) ---------
 def wait_tick(state: AgentState) -> AgentState:
+    """폴링 간격만큼 대기하는 노드."""
+
     sec = int(state.get("poll_seconds", 10) or 10)
     print(f"⏳ [대기 단계] {sec}초 동안 기다립니다. 다음 검색 시점을 준비합니다.")
     time.sleep(sec)
@@ -474,6 +478,8 @@ def wait_tick(state: AgentState) -> AgentState:
 
 # --------- 종료 판단 ---------
 def should_end(state: AgentState) -> bool:
+    """종료 조건을 판단한다."""
+
     has_deal = bool(state.get("deal_found") and state.get("deal_candidate"))
     has_inquiry = bool(state.get("inquiry_text"))
     max_polls = int(state.get("max_polls") or 0)
@@ -487,6 +493,8 @@ def should_end(state: AgentState) -> bool:
     return False
 
 def _next_after_reduce(s: AgentState) -> str:
+    """reduce 단계 이후 다음 노드를 결정한다."""
+
     if should_end(s):
         return "END"
     last_tool = s.get("_last_tool")
@@ -513,6 +521,8 @@ app = g.compile()
 
 # ===== CLI 엔트리포인트 =====
 def main():
+    """CLI로부터 입력을 받아 에이전트를 실행한다."""
+
     load_dotenv()
     parser = argparse.ArgumentParser(description="중고거래 에이전트 (Tool-calling + Polling, one-shot CLI)")
     parser.add_argument("item_name", help="조회할 상품명 (예: '아이패드 에어 5')")
