@@ -234,8 +234,8 @@ def find_deal(item_name: str, sailing_item_list: List[Dict], reasonable_price: f
         price = gpt_response.get("price", float("inf"))
 
         if price > reasonable_price:
-            # print(f"⚠️ [딜 탐색] 기준가 초과 매물({price:,}원) → 무효 처리")
-            # return {}
+            print(f"⚠️ [딜 탐색] 기준가 초과 매물({price:,}원) → 무효 처리")
+            return {}
 
         print(f"✅ [딜 탐색] GPT가 선택한 매물: {gpt_response}")
         return gpt_response
@@ -314,6 +314,9 @@ def policy(state: AgentState) -> AgentState:
     print(f"   • 신규 딜 발견 여부: {state.get('deal_found', False)}")
     print(f"   • 폴링 횟수: {state.get('polls_done', 0)} / 최대 {state.get('max_polls', '무제한')}")
     print("    =================================")
+
+    # 로그 관찰을 위한 대기 로직
+    time.sleep(20)
 
     print("🛠️ [정책 노드] 모델이 다음 단계에서 어떤 툴을 호출할지 판단합니다.")
     raw_msgs = state.get("messages", [])

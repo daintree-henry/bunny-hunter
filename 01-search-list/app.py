@@ -138,6 +138,8 @@ def main():
                 "price": _to_float(offers.get("price")),
             })
 
+    # 로그 관찰을 위한 대기 로직
+    time.sleep(5)
     print(json.dumps(result, ensure_ascii=False), flush=True)
 
 if __name__ == "__main__":
