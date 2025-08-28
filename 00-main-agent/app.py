@@ -234,8 +234,8 @@ def find_deal(item_name: str, sailing_item_list: List[Dict], reasonable_price: f
         price = gpt_response.get("price", float("inf"))
 
         if price > reasonable_price:
-            print(f"⚠️ [딜 탐색] 기준가 초과 매물({price:,}원) → 무효 처리")
-            #return {}
+            # print(f"⚠️ [딜 탐색] 기준가 초과 매물({price:,}원) → 무효 처리")
+            # return {}
 
         print(f"✅ [딜 탐색] GPT가 선택한 매물: {gpt_response}")
         return gpt_response
