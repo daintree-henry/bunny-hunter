@@ -233,9 +233,9 @@ def find_deal(item_name: str, sailing_item_list: List[Dict], reasonable_price: f
 
         price = gpt_response.get("price", float("inf"))
 
-        if price > reasonable_price:
-            print(f"⚠️ [딜 탐색] 기준가 초과 매물({price:,}원) → 무효 처리")
-            return {}
+        # if price > reasonable_price:
+        #     print(f"⚠️ [딜 탐색] 기준가 초과 매물({price:,}원) → 무효 처리")
+        #     return {}
 
         print(f"✅ [딜 탐색] GPT가 선택한 매물: {gpt_response}")
         return gpt_response
@@ -438,17 +438,18 @@ def reduce_observation(state: AgentState) -> AgentState:
                     items.append(Item.model_validate(x))
                 except Exception:
                     continue
-            state["sailing_item_list"] = items
 
+            # fingerprint 체크 → 신규만 추림
             seen = set(state.get("seen_fingerprints") or [])
-            sailing_item_list: List[Item] = []
+            newly_found: List[Item] = []
             for it in items:
                 fp = _fp(it)
                 if fp not in seen:
-                    sailing_item_list.append(it)
+                    newly_found.append(it)
                     seen.add(fp)
 
-            state["sailing_item_list"] = sailing_item_list
+            # state에는 신규 매물만 저장
+            state["sailing_item_list"] = newly_found
             state["seen_fingerprints"] = list(seen)
             state["polls_done"] = int(state.get("polls_done", 0)) + 1
 
