@@ -124,8 +124,8 @@ def search_target_region_listings(item_name: str) -> List[Dict]:
         - [{name: str, description: str, price: float, url: str}, ...]
     """
     print(f"📦 [검색 단계] '{item_name}' 키워드로 현재 판매 중인 매물을 검색합니다.")
-    #env = {"ITEM_NAME": item_name, "MODE": "CURRENT", "REGION": "중학동-6317"}
-    env = {"ITEM_NAME": item_name, "MODE": "CURRENT", "REGION": "문정동-6184"}
+    env = {"ITEM_NAME": item_name, "MODE": "CURRENT", "REGION": "중학동-6317"}
+    #env = {"ITEM_NAME": item_name, "MODE": "CURRENT", "REGION": "문정동-6184"}
     
     data = run_container("search-list", env) or []
     listings = data if isinstance(data, list) else [data]
